@@ -563,6 +563,15 @@ async function main(): Promise<void> {
       if (!channel) throw new Error(`No channel for JID: ${jid}`);
       return channel.sendMessage(jid, text);
     },
+    sendFile: (jid, filePath, comment) => {
+      const channel = findChannel(channels, jid);
+      if (!channel) throw new Error(`No channel for JID: ${jid}`);
+      if (!channel.sendFile) {
+        logger.warn({ jid }, 'Channel does not support file uploads');
+        return Promise.resolve();
+      }
+      return channel.sendFile(jid, filePath, comment);
+    },
     registeredGroups: () => registeredGroups,
     registerGroup,
     syncGroups: async (force: boolean) => {

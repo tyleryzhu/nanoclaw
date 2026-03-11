@@ -333,6 +333,29 @@ Use available_groups.json to find the JID for a group. The folder name must be c
   },
 );
 
+server.tool(
+  'send_file',
+  'Upload a file (image, PDF, etc.) to the chat. Use for sharing screenshots, figures, generated images, or documents. The file must exist in the container filesystem (e.g., in /workspace/group/).',
+  {
+    file_path: z.string().describe('Absolute path to the file in the container filesystem'),
+    comment: z.string().optional().describe('Optional text message to accompany the file'),
+  },
+  async (args) => {
+    const data: Record<string, string | undefined> = {
+      type: 'send_file',
+      chatJid,
+      filePath: args.file_path,
+      comment: args.comment || undefined,
+      groupFolder,
+      timestamp: new Date().toISOString(),
+    };
+
+    writeIpcFile(MESSAGES_DIR, data);
+
+    return { content: [{ type: 'text' as const, text: 'File upload requested.' }] };
+  },
+);
+
 // Start the stdio transport
 const transport = new StdioServerTransport();
 await server.connect(transport);
